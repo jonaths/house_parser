@@ -1,3 +1,6 @@
+# -*- coding: UTF-8 -*-
+
+
 from bs4 import BeautifulSoup
 import urllib2
 import re
@@ -10,7 +13,7 @@ class Scraper:
         self.html = html
         self.soup = BeautifulSoup(html, features="html.parser")
         self.scrapers = {
-            'title': self.soup.find('title').text,
+            'title': self.soup.find('title').text.encode("utf-8"),
             'zone': self.scrape_tags_with_class('p', 'zona-nombre'),
             'price': self.scrape_tags_with_class('p', 'precio-final'),
             'phone': self.scrape_tags_with_class('span', 'lineInmo'),
@@ -28,8 +31,8 @@ class Scraper:
         items = self.soup.find_all(tag, attrs={attr_name: class_name})
         items_arr = []
         for i in items:
-            if i['href'] is not None:
-                items_arr.append(i['href'])
+            if i.has_attr('href'):
+                items_arr.append(i.attrs['href'])
             else:
                 items_arr.append('')
         return items_arr
@@ -42,7 +45,7 @@ class Scraper:
         :param class_name: nombre del id o de la clase
         :return:
         """
-        return self.soup.find(tag, attrs={attr_name: class_name}).get_text() if self.soup.find(tag, attrs={attr_name: class_name}) else ''
+        return self.soup.find(tag, attrs={attr_name: class_name}).get_text().encode("utf-8") if self.soup.find(tag, attrs={attr_name: class_name}) else ''
 
     def find_tag_or_empty(self, tag, class_name):
         """
@@ -51,7 +54,7 @@ class Scraper:
         :param class_name:
         :return:
         """
-        return self.soup.find(tag, attrs={'class': class_name}).text \
+        return self.soup.find(tag, attrs={'class': class_name}).text.encode("utf-8") \
                    if self.soup.find(tag, attrs={'class': class_name}) else '',
 
     def scrape_tags_with_class(self, tag, class_name):
@@ -64,5 +67,5 @@ class Scraper:
         items = self.soup.find_all(tag, attrs={'class': class_name})
         items_str = ''
         for p in items:
-            items_str += p.text + '|'
-        return items_str
+            items_str += p.text.encode("utf-8") + '|'
+        return items_str[:-1]
