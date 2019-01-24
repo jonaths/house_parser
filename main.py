@@ -98,16 +98,16 @@ with open('output/to_parse.txt', 'w') as f:
     for line in to_parse:
         f.write(line + "\n")
 
-# print("Leyendo enlaces... ")
-#
-# # leer de sitios web
-# parsed = parse_from_urls(to_parse)
-#
-# print("Guardando csv... ")
-#
-#
-# keys = parsed[0].keys()
-# with open('output/info.csv', 'wb') as output_file:
-#     dict_writer = csv.DictWriter(output_file, keys)
-#     dict_writer.writeheader()
-#     dict_writer.writerows(parsed)
+print("Leyendo enlaces... ")
+
+# leer de sitios web
+parsed = parse_from_urls(to_parse)
+
+print("Guardando csv... ")
+
+
+keys = parsed[0].keys()
+with open('output/info.csv', 'wb') as output_file:
+    dict_writer = csv.DictWriter(output_file, keys)
+    dict_writer.writeheader()
+    dict_writer.writerows(parsed)
