@@ -6,7 +6,13 @@ import random
 import time
 import csv
 
+
 def parse_inner_page(html):
+    """
+    Parser para paginas interiores
+    :param html:
+    :return:
+    """
     s1 = Scraper(html)
     return {
         'titulo': s1.scrape('title'),
@@ -20,6 +26,11 @@ def parse_inner_page(html):
 
 
 def parse_main_page(html):
+    """
+    Parser para la pagina principal
+    :param html:
+    :return:
+    """
     s2 = Scraper(html)
     return {
         'target_urls': s2.scrape('urls_from_main')
@@ -27,6 +38,12 @@ def parse_main_page(html):
 
 
 def parse_from_files(files_list, folder='samples/'):
+    """
+    Hace un parsing a partir de una lista de nombres de archivos
+    :param files_list:
+    :param folder:
+    :return:
+    """
     data = []
     for p in files_list:
         print('Processing ' + p)
@@ -37,6 +54,11 @@ def parse_from_files(files_list, folder='samples/'):
 
 
 def parse_from_urls(urls_list):
+    """
+    Hace un parsing a partir de una lista de url
+    :param urls_list:
+    :return:
+    """
     data = []
     for p in urls_list:
         print('Processing ' + p)
@@ -76,16 +98,16 @@ with open('output/to_parse.txt', 'w') as f:
     for line in to_parse:
         f.write(line + "\n")
 
-print("Leyendo enlaces... ")
-
-# leer de sitios web
-parsed = parse_from_urls(to_parse)
-
-print("Guardando csv... ")
-
-
-keys = parsed[0].keys()
-with open('output/info.csv', 'wb') as output_file:
-    dict_writer = csv.DictWriter(output_file, keys)
-    dict_writer.writeheader()
-    dict_writer.writerows(parsed)
+# print("Leyendo enlaces... ")
+#
+# # leer de sitios web
+# parsed = parse_from_urls(to_parse)
+#
+# print("Guardando csv... ")
+#
+#
+# keys = parsed[0].keys()
+# with open('output/info.csv', 'wb') as output_file:
+#     dict_writer = csv.DictWriter(output_file, keys)
+#     dict_writer.writeheader()
+#     dict_writer.writerows(parsed)

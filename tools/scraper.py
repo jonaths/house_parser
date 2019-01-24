@@ -1,10 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-
 from bs4 import BeautifulSoup
-import urllib2
-import re
-import sys
 
 
 class Scraper:
@@ -27,12 +23,20 @@ class Scraper:
     def scrape(self, index):
         return self.scrapers[index]
 
-    def get_attr_from_tag_with_class(self, tag, attr_name, class_name):
+    def get_attr_from_tag_with_class(self, tag, attr_name, class_name, attr_to_find='href'):
+        """
+        Recupera una lista de todos los attr_to_find que haya segun las restricciones
+        :param attr_to_find:
+        :param tag:
+        :param attr_name:
+        :param class_name:
+        :return:
+        """
         items = self.soup.find_all(tag, attrs={attr_name: class_name})
         items_arr = []
         for i in items:
-            if i.has_attr('href'):
-                items_arr.append(i.attrs['href'])
+            if i.has_attr(attr_to_find):
+                items_arr.append(i.attrs[attr_to_find])
             else:
                 items_arr.append('')
         return items_arr
@@ -68,4 +72,5 @@ class Scraper:
         items_str = ''
         for p in items:
             items_str += p.text.encode("utf-8") + '|'
+        # elimina el ultimo |
         return items_str[:-1]
