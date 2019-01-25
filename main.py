@@ -25,7 +25,7 @@ def find_in_separated_string(source_string, separator, words_to_find):
     return ''
 
 
-def parse_inner_page(html):
+def parse_inner_page(html): 
     """
     Parser para paginas interiores
     :param html:
