@@ -1,4 +1,8 @@
 /output
+/env
+workspace.xml
+*.csv
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
