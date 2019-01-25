@@ -8,16 +8,6 @@ class Scraper:
     def __init__(self, html):
         self.html = html
         self.soup = BeautifulSoup(html, features="html.parser")
-        self.scrapers = {
-            'title': self.soup.find('title').text.encode("utf-8"),
-            'zone': self.scrape_tags_with_class('p', 'zona-nombre'),
-            'price': self.scrape_tags_with_class('p', 'precio-final'),
-            'phone': self.scrape_tags_with_class('span', 'lineInmo'),
-            'info': self.scrape_tags_with_class('div', 'dotInfo'),
-            'reference': self.find_tag_or_empty('div', 'referencia-slider'),
-            'desc': self.find_tag_and_strip_html('div', 'id', 'descripcion'),
-            'urls_from_main': self.get_attr_from_tag_with_class('a', 'class', 'holder-link')
-        }
         pass
 
     def scrape(self, index):
@@ -51,15 +41,16 @@ class Scraper:
         """
         return self.soup.find(tag, attrs={attr_name: class_name}).get_text().encode("utf-8") if self.soup.find(tag, attrs={attr_name: class_name}) else ''
 
-    def find_tag_or_empty(self, tag, class_name):
+    def find_tag_or_empty(self, tag, attr_name, class_name):
         """
         Encuentra el tag con class_name y si no esta regresa ""
+        :param attr_name: 
         :param tag:
         :param class_name:
         :return:
         """
-        return self.soup.find(tag, attrs={'class': class_name}).text.encode("utf-8") \
-                   if self.soup.find(tag, attrs={'class': class_name}) else '',
+        return self.soup.find(tag, attrs={attr_name: class_name}).text.encode("utf-8") \
+                   if self.soup.find(tag, attrs={attr_name: class_name}) else '',
 
     def scrape_tags_with_class(self, tag, class_name):
         """

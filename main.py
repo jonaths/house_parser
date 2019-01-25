@@ -15,13 +15,14 @@ def parse_inner_page(html):
     """
     s1 = Scraper(html)
     return {
-        'titulo': s1.scrape('title'),
-        'zona': s1.scrape('zone'),
-        'precio': s1.scrape('price'),
-        'telefono': s1.scrape('phone'),
-        'info': s1.scrape('info'),
-        'referencia': s1.scrape('reference'),
-        'descripcion': s1.scrape('desc')
+        'titulo': s1.soup.find('title').text.encode("utf-8"),
+        'zona': s1.scrape_tags_with_class('p', 'zona-nombre'),
+        'precio': s1.scrape_tags_with_class('p', 'precio-final'),
+        'telefono': s1.scrape_tags_with_class('span', 'lineInmo'),
+        'info': s1.scrape_tags_with_class('div', 'dotInfo'),
+        'referencia': s1.find_tag_or_empty('div', 'class', 'referencia-slider'),
+        'descripcion': s1.find_tag_and_strip_html('div', 'id', 'descripcion'),
+        'anunciante': s1.find_tag_or_empty('p', 'id', 'nombre-inmobiliaria'),
     }
 
 
@@ -33,7 +34,7 @@ def parse_main_page(html):
     """
     s2 = Scraper(html)
     return {
-        'target_urls': s2.scrape('urls_from_main')
+        'target_urls': s2.get_attr_from_tag_with_class('a', 'class', 'holder-link')
     }
 
 
@@ -70,44 +71,55 @@ def parse_from_urls(urls_list):
         time.sleep(timeDelay)
     return data
 
-# # leer de archivos
-# folder = 'samples/'
-# to_parse = ['sample2.html', 'sample3.html', 'sample5.html']
-# parsed = parse_from_files(to_parse)
-# print parsed
+
+def main():
+    print("python main function")
+
+    # # leer de archivos
+    # folder = 'samples/'
+    # to_parse = ['sample2.html', 'sample3.html', 'sample5.html', 'sample6.html']
+    # parsed = parse_from_files(to_parse)
+    # print parsed
+
+    print("Iniciando... ")
+
+    # definir urls objetivo
+    base_url = 'https://www.infocasas.com.py'
+    main_url = base_url+'/venta/casas-y-departamentos-y-terrenos-y-locales-comerciales-y-oficinas-y-tinglado-o-deposito-y-duplex/central'
+
+    print("Leyendo pagina principal... ")
+
+    # recupera enlaces de propiedades
+    response = urllib2.urlopen(main_url)
+    html = response.read()
+    to_parse_without_base_url = list(set(parse_main_page(html)['target_urls']))
+    to_parse = [base_url+p for p in to_parse_without_base_url]
+
+    to_parse = to_parse[:3]
+
+    print("Salvando lista de enlaces... ")
+
+    # guarda lista de enlaces encontrados
+    with open('output/to_parse.txt', 'w') as f:
+        for line in to_parse:
+            f.write(line + "\n")
+
+    print("Leyendo enlaces... ")
+
+    # leer de sitios web
+    parsed = parse_from_urls(to_parse)
+
+    print("Guardando csv... ")
 
 
-print("Iniciando... ")
-
-# definir urls objetivo
-base_url = 'https://www.infocasas.com.py'
-main_url = base_url+'/venta/casas-y-departamentos-y-terrenos-y-locales-comerciales-y-oficinas-y-tinglado-o-deposito-y-duplex/central'
-
-print("Leyendo pagina principal... ")
-
-# recupera enlaces de propiedades
-response = urllib2.urlopen(main_url)
-html = response.read()
-to_parse_without_base_url = list(set(parse_main_page(html)['target_urls']))
-to_parse = [base_url+p for p in to_parse_without_base_url]
-
-print("Salvando lista de enlaces... ")
-
-# guarda lista de enlaces encontrados
-with open('output/to_parse.txt', 'w') as f:
-    for line in to_parse:
-        f.write(line + "\n")
-
-print("Leyendo enlaces... ")
-
-# leer de sitios web
-parsed = parse_from_urls(to_parse)
-
-print("Guardando csv... ")
+    keys = parsed[0].keys()
+    with open('output/info.csv', 'wb') as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(parsed)
 
 
-keys = parsed[0].keys()
-with open('output/info.csv', 'wb') as output_file:
-    dict_writer = csv.DictWriter(output_file, keys)
-    dict_writer.writeheader()
-    dict_writer.writerows(parsed)
+if __name__ == '__main__':
+    main()
+
+
