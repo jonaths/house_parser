@@ -17,13 +17,11 @@ def find_in_separated_string(source_string, separator, words_to_find):
     :param words_to_find:
     :return:
     """
-    print(source_string)
     source_array = source_string.split(separator)
     for word_to_find in words_to_find:
         for i in range(len(source_array)):
             if word_to_find in source_array[i]:
                 return source_array[i]
-    print(source_array)
     return ''
 
 
@@ -91,7 +89,7 @@ def parse_from_urls(urls_list):
     """
     data = []
     for p in urls_list:
-        print('Processing ' + p)
+        print('    Processing ' + p)
         response = urllib2.urlopen(p)
         html = response.read()
         data.append(parse_inner_page(html))
@@ -101,8 +99,17 @@ def parse_from_urls(urls_list):
     return data
 
 
-def main():
-    print("python main function")
+def save_csv(file_name, info_dict):
+    print("Guardando csv... ")
+
+    keys = info_dict[0].keys()
+    with open(file_name, 'wb') as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(info_dict)
+
+
+def process(main_url, base_url):
 
     # # leer de archivos
     # folder = 'samples/'
@@ -110,13 +117,7 @@ def main():
     # parsed = parse_from_files(to_parse)
     # print parsed
 
-    print("Iniciando... ")
-
-    # definir urls objetivo
-    base_url = 'https://www.infocasas.com.py'
-    main_url = base_url+'/venta/casas-y-departamentos-y-terrenos-y-locales-comerciales-y-oficinas-y-tinglado-o-deposito-y-duplex/central'
-
-    print("Leyendo pagina principal... ")
+    print("Leyendo " + main_url)
 
     # recupera enlaces de propiedades
     response = urllib2.urlopen(main_url)
@@ -124,12 +125,10 @@ def main():
     to_parse_without_base_url = list(set(parse_main_page(html)['target_urls']))
     to_parse = [base_url+p for p in to_parse_without_base_url]
 
-    to_parse = to_parse[:3]
-
     print("Salvando lista de enlaces... ")
 
     # guarda lista de enlaces encontrados
-    with open('output/to_parse.txt', 'w') as f:
+    with open('output/to_parse.txt', 'a') as f:
         for line in to_parse:
             f.write(line + "\n")
 
@@ -138,16 +137,31 @@ def main():
     # leer de sitios web
     parsed = parse_from_urls(to_parse)
 
-    print("Guardando csv... ")
-
-    keys = parsed[0].keys()
-    with open('output/info.csv', 'wb') as output_file:
-        dict_writer = csv.DictWriter(output_file, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(parsed)
+    return parsed
 
 
 if __name__ == '__main__':
-    main()
+
+    # editar aqui v ===============================================
+    # definir urls objetivo
+    base_url = 'https://www.infocasas.com.py'
+    main_url = 'https://www.infocasas.com.py/venta/casas-y-departamentos-y-terrenos-y-locales-comerciales-y-oficinas-y-tinglado-o-deposito-y-duplex/central'
+    # pagina inicial (debe ser mayor que cero)
+    start_page = 1
+    # pagina consecutiva final
+    end_page = 4
+    # editar aqui ^ ===============================================
+
+    # definir paginas consecutivas
+    pages = []
+    for i in range(start_page, end_page):
+        pages.append(main_url+'/pagina'+str(i))
+
+    counter = 1
+    for p in pages:
+        print("Iniciando "+str(counter)+" ==========================")
+        parsed_dict = process(p, base_url)
+        save_csv('output/info-'+str(counter)+'.csv', parsed_dict)
+        counter = counter + 1
 
 
